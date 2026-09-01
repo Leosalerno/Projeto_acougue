@@ -1,17 +1,23 @@
 package application;
 
 import model.Cliente;
+import model.ItemVenda;
 import model.Produto;
+
+import java.time.LocalDate;
 import java.util.Scanner;
 
+import model.Venda;
 import service.ClienteService;
 import service.ProdutoService;
+import service.VendaService;
 
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         ProdutoService produtoService = new ProdutoService();
         ClienteService clienteService = new ClienteService();
+        VendaService vendaService = new VendaService();
 
         while(true) {
             System.out.println("" +
@@ -231,6 +237,94 @@ public class Main {
                     } else {
                         System.out.println("Cliente não encontrado.");
                     }
+                }
+            }
+
+            else if(opcao_inicio == 3) {
+                System.out.println("========= REALIZAR VENDA =========");
+                System.out.print("1 - Cadastrar venda\n" +
+                        "0 - Voltar\n" +
+                        "\n" +
+                        "Escolha: ");
+                int op_venda = sc.nextInt();
+
+                if (op_venda == 0) {
+                    continue;
+                }
+                else if(op_venda == 1) {
+                    System.out.println("Digite o ID do cliente: ");
+                    Integer id_cliente = sc.nextInt();
+
+                    Cliente cliente = clienteService.buscar(id_cliente);
+
+                    if (cliente == null) {
+                        System.out.println("Cliente não encontrado.");
+                        continue;
+                    }
+
+                    System.out.println("Cliente encontrado: ");
+                    System.out.println(cliente);
+
+                    System.out.println(
+                            "1 - Prosseguir com a venda\n" +
+                            "0 - Voltar\n" +
+                            "\n" +
+                            "Escolha: "
+                    );
+                    int escolha = sc.nextInt();
+
+                    if(escolha == 0) {
+                        continue;
+                    }
+
+                    else if(escolha == 1) {
+                        int escolha_venda = 0;
+                        System.out.println("Digite o ID da venda: ");
+                        Integer id_venda = sc.nextInt();
+
+                        Venda venda = new Venda(id_venda, cliente, LocalDate.now());
+                        do {
+
+                            System.out.println("Digite o ID do produto: ");
+                            Integer id_prod = sc.nextInt();
+                            Produto produto = produtoService.buscar(id_prod);
+
+                            if (produto == null) {
+                                System.out.println("Produto não encontrado.");
+                                continue;
+                            } else {
+                                System.out.println("Produto encontrado:");
+                                System.out.println(produto);
+                                System.out.println("Digite a quantidade:");
+                                Double quantidade = sc.nextDouble();
+
+                                ItemVenda item = new ItemVenda(produto, quantidade, produto.getPreco());
+                                venda.adicionarItem(item);
+                                System.out.println("Produto adicionado!");
+                                System.out.println(
+                                        "1 - Adicionar outro produto\n" +
+                                                "2 - Finalizar venda\n" +
+                                                "\n" +
+                                                "Escolha: "
+                                );
+                                escolha_venda = sc.nextInt();
+                            }
+                        } while (escolha_venda == 1);
+
+                        if (escolha_venda == 2) {
+
+                            System.out.println("== FECHAMENTO DE VENDA ==");
+                            System.out.println("Total = " + venda.calcularTotal());
+
+                            if (vendaService.cadastrar(venda)) {
+                                System.out.println("Venda realizada com sucesso!");
+                            } else {
+                                System.out.println("Já existe uma venda com esse ID.");
+                            }
+                        }
+
+                    }
+
                 }
             }
         }
