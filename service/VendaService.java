@@ -19,4 +19,14 @@ public class VendaService {
         vendas.add(venda);
         return true;
     }
+
+    public boolean existe(Integer id) {
+        for (Venda v : vendas) {
+            if (v.getId().equals(id)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

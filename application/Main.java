@@ -313,14 +313,48 @@ public class Main {
 
                         if (escolha_venda == 2) {
 
+                            // Verifica se o ID da venda já existe
+                            if (vendaService.existe(id_venda)) {
+                                System.out.println("Já existe uma venda com esse ID.");
+                                continue;
+                            }
+
+                            // Verifica o estoque de todos os produtos
+                            boolean estoqueValido = true;
+
+                            for (ItemVenda item : venda.getItemVendas()) {
+
+                                Produto produto = item.getProduto();
+                                Double quantidade = item.getQuantidade();
+
+                                if (!produtoService.temEstoque(produto.getId(), quantidade)) {
+                                    System.out.println("Estoque insuficiente para o produto: " + produto.getNome());
+                                    estoqueValido = false;
+                                    break;
+                                }
+                            }
+
+                            // Se algum produto não tiver estoque, não continua
+                            if (!estoqueValido) {
+                                System.out.println("Venda não realizada.");
+                                continue;
+                            }
+
+                            // baixa o estoque
+                            for (ItemVenda item : venda.getItemVendas()) {
+
+                                Produto produto = item.getProduto();
+                                Double quantidade = item.getQuantidade();
+
+                                produtoService.baixarEstoque(produto.getId(), quantidade);
+                            }
+
+                            // cadastra a venda
+                            vendaService.cadastrar(venda);
+
                             System.out.println("== FECHAMENTO DE VENDA ==");
                             System.out.println("Total = " + venda.calcularTotal());
-
-                            if (vendaService.cadastrar(venda)) {
-                                System.out.println("Venda realizada com sucesso!");
-                            } else {
-                                System.out.println("Já existe uma venda com esse ID.");
-                            }
+                            System.out.println("Venda realizada com sucesso!");
                         }
 
                     }

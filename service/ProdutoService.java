@@ -53,4 +53,28 @@ public class ProdutoService {
     public boolean excluir(Integer id) {
         return produtos.removeIf(p -> p.getId().equals(id));
     }
+
+    public boolean baixarEstoque(Integer id, Double quantidade) {
+        Produto p = buscar(id);
+        if(p == null) {
+            return false;
+        }
+        if(p.getQuantidadeEstoque() >= quantidade) {
+            p.setQuantidadeEstoque(p.getQuantidadeEstoque() - quantidade);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean temEstoque(Integer id, Double quantidade) {
+        Produto produto = buscar(id);
+
+        if (produto == null) {
+            return false;
+        }
+
+        return produto.getQuantidadeEstoque() >= quantidade;
+    }
 }
