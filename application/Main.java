@@ -29,8 +29,7 @@ public class Main {
             System.out.print("1 - Produtos\n" +
                     "2 - Clientes\n" +
                     "3 - Realizar venda\n" +
-                    "4 - Estoque\n" +
-                    "5 - Histórico de vendas\n" +
+                    "4 - Histórico de vendas\n" +
                     "0 - Sair\n" +
                     "\n" +
                     "Escolha uma opção: ");
@@ -49,6 +48,7 @@ public class Main {
                         "3 - Buscar produto\n" +
                         "4 - Alterar produto\n" +
                         "5 - Excluir produto\n" +
+                        "6 - Repor estoque\n" +
                         "0 - Voltar\n" +
                         "\n" +
                         "Escolha: ");
@@ -69,7 +69,7 @@ public class Main {
                     String categoria = sc.nextLine();
                     System.out.println("Preço: ");
                     Double preco = sc.nextDouble();
-                    System.out.println("Quantidade: ");
+                    System.out.println("Quantidade inicial em estoque: ");
                     Double quantidade = sc.nextDouble();
 
                     Produto produto = new Produto(id, nome, categoria, preco, quantidade);
@@ -83,7 +83,7 @@ public class Main {
                 }
 
                 else if (op_produtos == 2) {
-                    System.out.println("== ESTOQUE ==");
+                    System.out.println("== LISTA DE PRODUTOS ==");
                     for(Produto p: produtoService.listar()) {
                         System.out.println(p);
                         System.out.println("--------------------");
@@ -123,9 +123,7 @@ public class Main {
                         String categoria_nova = sc.nextLine();
                         System.out.println("Novo preço: ");
                         double preco_novo = sc.nextDouble();
-                        System.out.println("Nova quantidade: ");
-                        double quantidade_nova = sc.nextDouble();
-                        produtoService.alterar(id_produto_alterar, nome_novo, categoria_nova, preco_novo, quantidade_nova);
+                        produtoService.alterar(id_produto_alterar, nome_novo, categoria_nova, preco_novo);
                         System.out.println("Produto alterado com sucesso!");
                     }
                 }
@@ -139,6 +137,34 @@ public class Main {
                         System.out.println("Produto excluído com sucesso.");
                     } else {
                         System.out.println("Produto não encontrado.");
+                    }
+                }
+
+                else if (op_produtos == 6) {
+                    System.out.println("== REPOR ESTOQUE ==");
+                    System.out.println("Digite o ID do produto: ");
+                    Integer id_prod_repor = sc.nextInt();
+                    Produto produto = produtoService.buscar(id_prod_repor);
+                    if (produto == null) {
+                        System.out.println("Produto não encontrado.");
+                        continue;
+                    }
+
+                    System.out.println("Produto: " + produto.getNome());
+                    System.out.println("Estoque atual: " + produto.getQuantidadeEstoque());
+                    System.out.println("Digite a quantidade recebida para adicionar ao estoque:");
+                    if (!sc.hasNextDouble()) {
+                        sc.next();
+                        System.out.println("Quantidade inválida. Digite um número maior que zero.");
+                        continue;
+                    }
+                    double quantidade = sc.nextDouble();
+
+                    if (produtoService.reporEstoque(id_prod_repor, quantidade)) {
+                        System.out.println("Estoque reposto com sucesso!");
+                        System.out.println("Novo estoque: " + produto.getQuantidadeEstoque());
+                    } else {
+                        System.out.println("Reposição não realizada. Informe uma quantidade positiva e finita, sem exceder o limite numérico do estoque.");
                     }
                 }
 
@@ -355,7 +381,7 @@ public class Main {
 
                 }
             }
-            else if(opcao_inicio == 5) {
+            else if(opcao_inicio == 4) {
                 System.out.println("========= HISTÓRICO DE VENDAS =========");
                 System.out.print("1 - Mostrar Histórico\n" +
                         "0 - Voltar\n" +

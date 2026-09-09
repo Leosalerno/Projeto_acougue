@@ -36,7 +36,7 @@ public class ProdutoService {
         return null;
     }
 
-    public boolean alterar(Integer id, String nome, String categoria, Double preco, Double quantidade) {
+    public boolean alterar(Integer id, String nome, String categoria, Double preco) {
         Produto produto = buscar(id);
 
         if (produto == null) {
@@ -46,13 +46,27 @@ public class ProdutoService {
         produto.setNome(nome);
         produto.setCategoria(categoria);
         produto.setPreco(preco);
-        produto.setQuantidadeEstoque(quantidade);
 
         return true;
     }
 
     public boolean excluir(Integer id) {
         return produtos.removeIf(p -> p.getId().equals(id));
+    }
+
+    public boolean reporEstoque(Integer id, double quantidade) {
+        Produto produto = buscar(id);
+        if (produto == null || !Double.isFinite(quantidade) || quantidade <= 0) {
+            return false;
+        }
+
+        double novoEstoque = produto.getQuantidadeEstoque() + quantidade;
+        if (!Double.isFinite(novoEstoque)) {
+            return false;
+        }
+
+        produto.setQuantidadeEstoque(novoEstoque);
+        return true;
     }
 
     public boolean baixarEstoques(Map<Integer, Double> quantidades) {
