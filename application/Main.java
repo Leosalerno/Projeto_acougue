@@ -17,7 +17,7 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         ProdutoService produtoService = new ProdutoService();
         ClienteService clienteService = new ClienteService();
-        VendaService vendaService = new VendaService();
+        VendaService vendaService = new VendaService(produtoService);
 
         while(true) {
             System.out.println("" +
@@ -278,7 +278,7 @@ public class Main {
                     }
 
                     else if(escolha == 1) {
-                        int escolha_venda = 0;
+                        int escolha_venda = 1;
                         System.out.println("Digite o ID da venda: ");
                         Integer id_venda = sc.nextInt();
 
@@ -298,6 +298,21 @@ public class Main {
                                 System.out.println("Digite a quantidade:");
                                 Double quantidade = sc.nextDouble();
 
+                                if (quantidade <= 0) {
+                                    System.out.println("A quantidade deve ser maior que zero.");
+                                    continue;
+                                }
+
+                                double quantidadeNaVenda =
+                                        venda.quantidadeDoProduto(produto.getId());
+
+                                double quantidadeTotal = quantidadeNaVenda + quantidade;
+
+                                if (!produtoService.temEstoque(produto.getId(), quantidadeTotal)) {
+                                    System.out.println("Estoque insuficiente para a quantidade total na venda!");
+                                    continue;
+                                }
+
                                 ItemVenda item = new ItemVenda(produto, quantidade, produto.getPreco());
                                 venda.adicionarItem(item);
                                 System.out.println("Produto adicionado!");
@@ -313,48 +328,26 @@ public class Main {
 
                         if (escolha_venda == 2) {
 
-                            // Verifica se o ID da venda já existe
-                            if (vendaService.existe(id_venda)) {
-                                System.out.println("Já existe uma venda com esse ID.");
-                                continue;
-                            }
-
-                            // Verifica o estoque de todos os produtos
-                            boolean estoqueValido = true;
-
-                            for (ItemVenda item : venda.getItemVendas()) {
-
-                                Produto produto = item.getProduto();
-                                Double quantidade = item.getQuantidade();
-
-                                if (!produtoService.temEstoque(produto.getId(), quantidade)) {
-                                    System.out.println("Estoque insuficiente para o produto: " + produto.getNome());
-                                    estoqueValido = false;
+                            VendaService.ResultadoVenda resultado = vendaService.finalizar(venda);
+                            switch (resultado) {
+                                case SUCESSO:
+                                    System.out.println("== FECHAMENTO DE VENDA ==");
+                                    System.out.println("Total = " + venda.getValorTotal());
+                                    System.out.println("Venda realizada com sucesso!");
                                     break;
-                                }
+                                case ID_DUPLICADO:
+                                    System.out.println("Já existe uma venda com esse ID.");
+                                    break;
+                                case SEM_ITENS:
+                                    System.out.println("Adicione pelo menos um item à venda.");
+                                    break;
+                                case QUANTIDADE_INVALIDA:
+                                    System.out.println("Venda não realizada: quantidade inválida.");
+                                    break;
+                                case ESTOQUE_INSUFICIENTE:
+                                    System.out.println("Venda não realizada: produto indisponível ou estoque insuficiente.");
+                                    break;
                             }
-
-                            // Se algum produto não tiver estoque, não continua
-                            if (!estoqueValido) {
-                                System.out.println("Venda não realizada.");
-                                continue;
-                            }
-
-                            // baixa o estoque
-                            for (ItemVenda item : venda.getItemVendas()) {
-
-                                Produto produto = item.getProduto();
-                                Double quantidade = item.getQuantidade();
-
-                                produtoService.baixarEstoque(produto.getId(), quantidade);
-                            }
-
-                            // cadastra a venda
-                            vendaService.cadastrar(venda);
-
-                            System.out.println("== FECHAMENTO DE VENDA ==");
-                            System.out.println("Total = " + venda.calcularTotal());
-                            System.out.println("Venda realizada com sucesso!");
                         }
 
                     }

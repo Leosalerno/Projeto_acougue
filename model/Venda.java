@@ -68,4 +68,16 @@ public class Venda {
         }
         return soma;
     }
+
+    public double quantidadeDoProduto(Integer idProduto) {
+        double quantidadeTotal = 0;
+
+        for (ItemVenda item : itemVendas) {
+            if (item.getProduto().getId().equals(idProduto)) {
+                quantidadeTotal += item.getQuantidade();
+            }
+        }
+
+        return quantidadeTotal;
+    }
 }

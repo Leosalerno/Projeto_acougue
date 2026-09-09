@@ -4,6 +4,7 @@ import model.Produto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProdutoService {
 
@@ -56,22 +57,48 @@ public class ProdutoService {
 
     public boolean baixarEstoque(Integer id, Double quantidade) {
         Produto p = buscar(id);
-        if(p == null) {
+
+        if (p == null) {
             return false;
         }
-        if(p.getQuantidadeEstoque() >= quantidade) {
+
+        if (quantidade <= 0) {
+            return false;
+        }
+
+        if (p.getQuantidadeEstoque() >= quantidade) {
             p.setQuantidadeEstoque(p.getQuantidadeEstoque() - quantidade);
             return true;
         }
-        else {
-            return false;
+
+        return false;
+    }
+
+    public boolean baixarEstoques(Map<Integer, Double> quantidades) {
+        // Confere todos os produtos antes de alterar qualquer estoque.
+        for (Map.Entry<Integer, Double> entrada : quantidades.entrySet()) {
+            Double quantidade = entrada.getValue();
+            if (quantidade == null || !Double.isFinite(quantidade)
+                    || !temEstoque(entrada.getKey(), quantidade)) {
+                return false;
+            }
         }
+
+        for (Map.Entry<Integer, Double> entrada : quantidades.entrySet()) {
+            Produto produto = buscar(entrada.getKey());
+            produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - entrada.getValue());
+        }
+        return true;
     }
 
     public boolean temEstoque(Integer id, Double quantidade) {
         Produto produto = buscar(id);
 
         if (produto == null) {
+            return false;
+        }
+
+        if (quantidade <= 0) {
             return false;
         }
 
