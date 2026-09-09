@@ -60,4 +60,8 @@ public class VendaService {
 
         return false;
     }
+
+    public List<Venda> listar() {
+        return new ArrayList<>(vendas);
+    }
 }

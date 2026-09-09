@@ -5,6 +5,7 @@ import model.ItemVenda;
 import model.Produto;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Scanner;
 
 import model.Venda;
@@ -352,6 +353,34 @@ public class Main {
 
                     }
 
+                }
+            }
+            else if(opcao_inicio == 5) {
+                System.out.println("========= HISTÓRICO DE VENDAS =========");
+                System.out.print("1 - Mostrar Histórico\n" +
+                        "0 - Voltar\n" +
+                        "\n" +
+                        "Escolha: ");
+                int op_historico_venda = sc.nextInt();
+
+                if (op_historico_venda == 0) {
+                    continue;
+                }
+                else if(op_historico_venda == 1) {
+                    List<Venda> historico = vendaService.listar();
+
+                    if(historico.isEmpty()) {
+                        System.out.println("Nenhuma venda registrada.");
+                    }
+                    else {
+                        for (Venda venda : historico) {
+                            System.out.println("--------------------");
+                            System.out.println("ID: " + venda.getId());
+                            System.out.println("Cliente: " + venda.getCliente().getNome());
+                            System.out.println("Data: " + venda.getData());
+                            System.out.printf("Total: R$ %.2f%n", venda.getValorTotal());
+                        }
+                    }
                 }
             }
         }

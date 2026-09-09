@@ -55,25 +55,6 @@ public class ProdutoService {
         return produtos.removeIf(p -> p.getId().equals(id));
     }
 
-    public boolean baixarEstoque(Integer id, Double quantidade) {
-        Produto p = buscar(id);
-
-        if (p == null) {
-            return false;
-        }
-
-        if (quantidade <= 0) {
-            return false;
-        }
-
-        if (p.getQuantidadeEstoque() >= quantidade) {
-            p.setQuantidadeEstoque(p.getQuantidadeEstoque() - quantidade);
-            return true;
-        }
-
-        return false;
-    }
-
     public boolean baixarEstoques(Map<Integer, Double> quantidades) {
         // Confere todos os produtos antes de alterar qualquer estoque.
         for (Map.Entry<Integer, Double> entrada : quantidades.entrySet()) {
